@@ -9,10 +9,8 @@ especificamos la ruta de la carpeta Conector y clic a Ok en todo
 * */
 public class Main {
     public static void main(String[] args) {
-        //Declaramos 3 variables para la conexion a la BD, e importamos sus bibliotecas
         Connection myConn = null;
-        Statement myStamt = null;
-        ResultSet myRes = null;
+        PreparedStatement myStamt = null;
 
         //Establecemos una conexion de prueba dentro de un try
         try {
@@ -21,15 +19,19 @@ public class Main {
                     "root", "Admin1234");
             System.out.println("Genial, nos conectamos");
 
-            //Hacemos una consulta a la BD
-            //Objeto Statement
-            myStamt = myConn.createStatement();
-            //Sentencia SQL para consultar todos los valores de la tabla employees
-            myRes = myStamt.executeQuery("SELECT * FROM employees");
+            //Secuencia SQL
+            String sql = ("INSERT INTO employees(first_name, pa_surname) VALUES(?, ?)");
+            myStamt = myConn.prepareStatement(sql);
+            //Values a insertar con la secuencia SQL
+            myStamt.setString(1, "Johana");
+            myStamt.setString(2, "Dorantes");
 
-            //Imprime todos los valores del campo first_name de la tabla consultada
-            while(myRes.next()){
-                System.out.println(myRes.getString("first_name"));
+            //Ejecutamos las instrucciones para SQL
+            int rowsAffected = myStamt.executeUpdate();
+
+            //En caso de haber cambios, se informara con un print
+            if(rowsAffected > 0){
+                System.out.println("Se ha creado un nuevo empleado");
             }
 
         } catch (Exception e) { //Catch en caso de no lograr la conexion
