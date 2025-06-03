@@ -10,7 +10,8 @@ especificamos la ruta de la carpeta Conector y clic a Ok en todo
 public class Main {
     public static void main(String[] args) {
         Connection myConn = null;
-        PreparedStatement myStamt = null;
+        Statement myStamt = null;
+        ResultSet myRes = null;
 
         //Establecemos una conexion de prueba dentro de un try
         try {
@@ -19,19 +20,25 @@ public class Main {
                     "root", "Admin1234");
             System.out.println("Genial, nos conectamos");
 
-            //Secuencia SQL
-            String sql = ("INSERT INTO employees(first_name, pa_surname) VALUES(?, ?)");
-            myStamt = myConn.prepareStatement(sql);
-            //Values a insertar con la secuencia SQL
-            myStamt.setString(1, "Johana");
-            myStamt.setString(2, "Dorantes");
+            //Objeto Statement
+            myStamt = myConn.createStatement();
 
-            //Ejecutamos las instrucciones para SQL
-            int rowsAffected = myStamt.executeUpdate();
+            //Ejecutamos las instrucciones SQL para actualizar un email
+            int rowsAffected = myStamt.executeUpdate(" UPDATE employees " +
+                    " set email='johanador2@mail.com' " + " WHERE first_name = 'Johana' ");
 
-            //En caso de haber cambios, se informara con un print
-            if(rowsAffected > 0){
-                System.out.println("Se ha creado un nuevo empleado");
+            /*
+            //Eliminacion de un empleado
+            int rowsAffected = myStamt.executeUpdate(" DELETE FROM employees " +
+                    "WHERE first_name = 'David' ");
+             */
+
+            //Despues de hacer el UPDATE hacemos la consulta de la tabla employees, obteniendo
+            //solamente first_name y email, ordemadps por el campo pa_surname
+            System.out.println("Empleados Actuales:");
+            myRes = myStamt.executeQuery("SELECT * FROM employees ORDER BY pa_surname");
+            while( myRes.next() ){
+                System.out.println(myRes.getString("first_name") + "," + myRes.getString("email"));
             }
 
         } catch (Exception e) { //Catch en caso de no lograr la conexion
